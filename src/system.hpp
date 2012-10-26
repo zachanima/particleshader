@@ -3,6 +3,8 @@
 
 #define GL_GLEXT_PROTOTYPES
 
+#include <cstdlib>
+
 #include <GL/gl.h>
 #include <GL/glext.h>
 
@@ -17,8 +19,9 @@ class System {
   private:
     static GLuint ibo;
     static GLuint vbo;
-    static GLuint positionTexture;
+    static GLuint positionTexture[2];
     static GLuint positionProgram;
+    static GLushort swap;
 };
 
 #endif // SYSTEM_HPP

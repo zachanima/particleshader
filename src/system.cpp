@@ -2,8 +2,9 @@
 
 GLuint System::ibo;
 GLuint System::vbo;
-GLuint System::positionTexture;
+GLuint System::positionTexture[2];
 GLuint System::positionProgram;
+GLushort System::swap = 0;
 
 GLvoid System::initialize() {
   const GLushort is[] = { 0, 1, 2, 3 };
@@ -18,9 +19,9 @@ GLvoid System::initialize() {
 
   // Initialize pixel data.
   for (size_t i = 0; i < 8 * 8 * 4; i += 4) {
-    data[i+0] = (GLfloat)i / (8.f * 8.f * 4.f);
-    data[i+1] = (GLfloat)i / (8.f * 8.f * 4.f);
-    data[i+2] = (GLfloat)i / (8.f * 8.f * 4.f);
+    data[i+0] = (GLfloat)rand() / (GLfloat)RAND_MAX;
+    data[i+1] = (GLfloat)rand() / (GLfloat)RAND_MAX;
+    data[i+2] = (GLfloat)rand() / (GLfloat)RAND_MAX;
     data[i+3] = 1.f;
   }
 
@@ -36,8 +37,8 @@ GLvoid System::initialize() {
 
   // Initialize position texture.
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(1, &positionTexture);
-  glBindTexture(GL_TEXTURE_2D, positionTexture);
+  glGenTextures(1, &positionTexture[swap]);
+  glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -59,6 +60,7 @@ GLvoid System::initialize() {
 
 
 GLvoid System::update() {
+  
 }
 
 
@@ -69,7 +71,7 @@ GLvoid System::render() {
 
   glUseProgram(positionProgram);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, positionTexture);
+  glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableVertexAttribArray(0);
