@@ -11,7 +11,6 @@ void main(void) {
   vec4 previous = texture2D(previousSampler, vertexTexture);
   vec4 current = texture2D(currentSampler, vertexTexture);
   vec4 acceleration = vec4(0.f, 0.f, 0.f, 0.f);
-  float minDist = 0.f;
 
   for (float y = 0.f; y < 1.f; y += 1.f / 128.f) {
     for (float x = 0.f; x < 1.f; x += 1.f / 128.f) {

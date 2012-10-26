@@ -1,7 +1,5 @@
 #version 140
 
-in float mass;
-
 out vec4 color;
 
 void main(void) {

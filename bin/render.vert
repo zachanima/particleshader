@@ -2,8 +2,6 @@
 
 layout (location = 0) in vec2 texture;
 
-out float mass;
-
 uniform sampler2D sampler;
 
 void main(void) {
