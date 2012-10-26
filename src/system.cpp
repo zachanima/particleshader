@@ -1,7 +1,7 @@
 #include "system.hpp"
 
-GLuint System::ibo;
-GLuint System::vbo;
+GLuint System::quadibo;
+GLuint System::quadvbo;
 GLuint System::positionTexture[2];
 GLuint System::positionProgram;
 GLuint System::renderProgram;
@@ -15,46 +15,55 @@ GLvoid System::initialize() {
      1.f,  1.f, 0.f, 1.f, 1.f,
      1.f, -1.f, 0.f, 1.f, 0.f
   };
-  GLfloat *data = new GLfloat[8 * 8 * 4];
+  GLfloat *data = new GLfloat[PARTICLES * 4];
   GLuint samplerUniform;
+  GLuint sqrtParticlesUniform;
 
   // Initialize pixel data.
-  for (size_t i = 0; i < 8 * 8 * 4; i += 4) {
+  for (size_t i = 0; i < PARTICLES * 4; i += 4) {
     data[i+0] = (GLfloat)rand() / (GLfloat)RAND_MAX;
     data[i+1] = (GLfloat)rand() / (GLfloat)RAND_MAX;
-    data[i+2] = (GLfloat)rand() / (GLfloat)RAND_MAX;
+    data[i+2] = 0.f;
     data[i+3] = 1.f;
   }
 
-  // Initialize index buffer object.
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  // Initialize textured quad index buffer object.
+  glGenBuffers(1, &quadibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLushort), is, GL_STATIC_DRAW);
 
-  // Initialize vertex buffer object.
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  // Initialize textured quad vertex buffer object.
+  glGenBuffers(1, &quadvbo);
+  glBindBuffer(GL_ARRAY_BUFFER, quadvbo);
   glBufferData(GL_ARRAY_BUFFER, 4 * 5 * sizeof(GLfloat), vs, GL_STATIC_DRAW);
 
-  // Initialize position texture.
+  // Initialize position read/write textures.
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(1, &positionTexture[swap]);
+  glGenTextures(2, positionTexture);
   glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_FLOAT, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SQRT_PARTICLES, SQRT_PARTICLES, 0, GL_RGBA, GL_FLOAT, data);
+  glBindTexture(GL_TEXTURE_2D, positionTexture[1-swap]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SQRT_PARTICLES, SQRT_PARTICLES, 0, GL_RGBA, GL_FLOAT, NULL);
   glBindTexture(GL_TEXTURE_2D, 0);
 
   // Initialize position shaders.
-  // positionProgram = Display::shaders("position.vert", "position.frag");
+  positionProgram = Display::shaders("position.vert", "position.frag");
 
   // Initialize render shaders.
   renderProgram = Display::shaders("render.vert", "render.frag");
   samplerUniform = glGetUniformLocation(renderProgram, "sampler");
+  sqrtParticlesUniform = glGetUniformLocation(renderProgram, "sqrtParticles");
   glUseProgram(renderProgram);
   glUniform1i(samplerUniform, 0);
+  glUniform1i(sqrtParticlesUniform, SQRT_PARTICLES);
   glUseProgram(0);
 
   // Delete pixel data.
@@ -64,7 +73,44 @@ GLvoid System::initialize() {
 
 
 GLvoid System::update() {
-  
+  const GLuint samplerUniform = glGetUniformLocation(positionProgram, "sampler");
+  const GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
+  GLuint fbo;
+
+  // Initialize framebuffer object, attach write texture.
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture[1-swap], 0);
+  glDrawBuffers(1, buffers);
+
+  // Render new positions to framebuffer.
+  glPushAttrib(GL_VIEWPORT);
+  glViewport(0, 0, SQRT_PARTICLES, SQRT_PARTICLES);
+  glClearColor(0.f, 0.f, 0.f, 1.f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glUseProgram(positionProgram);
+  glUniform1i(samplerUniform, 0);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadibo);
+  glBindBuffer(GL_ARRAY_BUFFER, quadvbo);
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)12);
+  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, (GLvoid *)0);
+  glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(1);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glUseProgram(0);
+  glPopAttrib();
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteFramebuffers(1, &fbo);
+
+  swap = 1 - swap;
 }
 
 
@@ -76,8 +122,8 @@ GLvoid System::render() {
   glUseProgram(renderProgram);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadibo);
+  glBindBuffer(GL_ARRAY_BUFFER, quadvbo);
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);

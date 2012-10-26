@@ -1,6 +1,9 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
+#define SQRT_PARTICLES (16)
+#define PARTICLES (SQRT_PARTICLES * SQRT_PARTICLES)
+
 #define GL_GLEXT_PROTOTYPES
 
 #include <cstdlib>
@@ -17,9 +20,10 @@ class System {
     static GLvoid render();
 
   private:
-    static GLuint ibo;
-    static GLuint vbo;
+    static GLuint quadibo;
+    static GLuint quadvbo;
     static GLuint positionTexture[2];
+    static GLuint renderTexture;
     static GLuint positionProgram;
     static GLuint renderProgram;
     static GLushort swap;
