@@ -1,7 +1,7 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
-#define SQRT_PARTICLES (16)
+#define SQRT_PARTICLES (512)
 #define PARTICLES (SQRT_PARTICLES * SQRT_PARTICLES)
 
 #define GL_GLEXT_PROTOTYPES
@@ -20,6 +20,9 @@ class System {
     static GLvoid render();
 
   private:
+    static GLuint ibo;
+    static GLuint vbo;
+    static GLuint quadfbo;
     static GLuint quadibo;
     static GLuint quadvbo;
     static GLuint positionTexture[2];

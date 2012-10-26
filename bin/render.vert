@@ -1,13 +1,9 @@
 #version 140
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texture;
+layout (location = 0) in vec2 texture;
 
-out vec3 vertexPosition;
-out vec2 vertexTexture;
+uniform sampler2D sampler;
 
 void main(void) {
-  gl_Position = vec4(position, 1.f);
-  vertexPosition = position;
-  vertexTexture = texture;
+  gl_Position = vec4(2.f, 2.f, 0.f, 1.f) * (vec4(texture2D(sampler, texture).xyz, 1.f) - vec4(.5f, .5f, 0.f, 0.f));
 }

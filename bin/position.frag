@@ -1,6 +1,5 @@
 #version 140
 
-in vec3 vertexPosition;
 in vec2 vertexTexture;
 
 out vec4 color;
