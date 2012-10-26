@@ -1,7 +1,7 @@
 #include "main.hpp"
 
 int main(int argc, char **argv) {
-  Display::create(720, 720);
+  Display::create(1280, 720);
   System::initialize();
 
   while (!Keyboard::isKeyDown(KEY_ESCAPE)) {
