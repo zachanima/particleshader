@@ -21,6 +21,7 @@ class System {
     static GLuint vbo;
     static GLuint positionTexture[2];
     static GLuint positionProgram;
+    static GLuint renderProgram;
     static GLushort swap;
 };
 

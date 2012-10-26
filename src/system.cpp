@@ -4,6 +4,7 @@ GLuint System::ibo;
 GLuint System::vbo;
 GLuint System::positionTexture[2];
 GLuint System::positionProgram;
+GLuint System::renderProgram;
 GLushort System::swap = 0;
 
 GLvoid System::initialize() {
@@ -46,10 +47,13 @@ GLvoid System::initialize() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_FLOAT, data);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  // Initialize shaders.
-  positionProgram = Display::shaders("position.vert", "position.frag");
-  samplerUniform = glGetUniformLocation(positionProgram, "sampler");
-  glUseProgram(positionProgram);
+  // Initialize position shaders.
+  // positionProgram = Display::shaders("position.vert", "position.frag");
+
+  // Initialize render shaders.
+  renderProgram = Display::shaders("render.vert", "render.frag");
+  samplerUniform = glGetUniformLocation(renderProgram, "sampler");
+  glUseProgram(renderProgram);
   glUniform1i(samplerUniform, 0);
   glUseProgram(0);
 
@@ -69,7 +73,7 @@ GLvoid System::render() {
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glUseProgram(positionProgram);
+  glUseProgram(renderProgram);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, positionTexture[swap]);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
