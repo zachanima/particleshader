@@ -1,11 +1,12 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
-#define SQRT_PARTICLES (512)
+#define SQRT_PARTICLES (128)
 #define PARTICLES (SQRT_PARTICLES * SQRT_PARTICLES)
 
 #define GL_GLEXT_PROTOTYPES
 
+#include <cmath>
 #include <cstdlib>
 
 #include <GL/gl.h>
@@ -25,8 +26,7 @@ class System {
     static GLuint quadfbo;
     static GLuint quadibo;
     static GLuint quadvbo;
-    static GLuint positionTexture[2];
-    static GLuint renderTexture;
+    static GLuint positionTexture[3];
     static GLuint positionProgram;
     static GLuint renderProgram;
     static GLushort swap;
