@@ -19,8 +19,8 @@ GLvoid System::initialize() {
      1.f, -1.f, 0.f, 1.f, 0.f
   };
   static GLfloat data[PARTICLES * 4];
-  GLuint is[PARTICLES];
-  GLfloat vs[PARTICLES * 2];
+  GLuint is[VERTICES];
+  GLfloat vs[VERTICES * 3];
   GLuint samplerUniform;
   GLuint previousSamplerUniform;
   GLuint currentSamplerUniform;
@@ -49,8 +49,8 @@ GLvoid System::initialize() {
   for (size_t i = 0; i < PARTICLES * 4; i += 4) {
     data[i+0] = .5f * (GLfloat)rand() / (GLfloat)RAND_MAX - .25f;
     data[i+1] = .5f * (GLfloat)rand() / (GLfloat)RAND_MAX - .25f;
-    data[i+2] = 0.f; // .5f * (GLfloat)rand() / (GLfloat)RAND_MAX - .25f;
-    data[i+3] = 1.f; // ((GLfloat)rand() / (GLfloat)RAND_MAX) * 1.05f;
+    data[i+2] = .5f * (GLfloat)rand() / (GLfloat)RAND_MAX - .25f;
+    data[i+3] = .5f * (GLfloat)rand() / (GLfloat)RAND_MAX - .25f;
   }
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SQRT_PARTICLES, SQRT_PARTICLES, 0, GL_RGBA, GL_FLOAT, data);
 
@@ -70,12 +70,12 @@ GLvoid System::initialize() {
   glBindTexture(GL_TEXTURE_2D, 0);
 
   // Initialize particle index buffer object.
-  for (size_t i = 0; i < PARTICLES; i++) {
+  for (size_t i = 0; i < VERTICES; i++) {
     is[i] = i;
   }
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, PARTICLES * sizeof(GLuint), is, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, VERTICES * sizeof(GLuint), is, GL_STATIC_DRAW);
 
   // Initialize particle vertex buffer object.
   size_t i = 0;
@@ -83,11 +83,19 @@ GLvoid System::initialize() {
     for (float x = 0.f; x < 1.f; x += 1.f / (GLfloat)SQRT_PARTICLES) {
       vs[i++] = x;
       vs[i++] = y;
+      vs[i++] = 0.f;
+    }
+  }
+  for (float y = 0.f; y < 1.f; y += 1.f / (GLfloat)SQRT_PARTICLES) {
+    for (float x = 0.f; x < 1.f; x += 1.f / (GLfloat)SQRT_PARTICLES) {
+      vs[i++] = x;
+      vs[i++] = y;
+      vs[i++] = 1.f;
     }
   }
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, PARTICLES * 2.f * sizeof(GLfloat), vs, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, VERTICES * 3 * sizeof(GLfloat), vs, GL_STATIC_DRAW);
 
   // Initialize position shaders.
   positionProgram = Display::shaders("position.vert", "position.frag");
@@ -172,9 +180,9 @@ GLvoid System::render() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
 
-  glDrawElements(GL_POINTS, PARTICLES, GL_UNSIGNED_INT, (GLvoid *)0);
+  glDrawElements(GL_POINTS, VERTICES, GL_UNSIGNED_INT, (GLvoid *)0);
 
   glDisableVertexAttribArray(0);
   glDisableVertexAttribArray(1);
