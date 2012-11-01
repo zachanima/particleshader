@@ -36,10 +36,12 @@ void main(void) {
 
   color = 2.f * current - previous + acceleration;
 
+  /*
   if (color.x > 1.f || color.x < -1.f) {
     color.x = current.x;
   }
   if (color.y > 1.f || color.y < -1.f) {
     color.y = current.y;
   }
+  */
 }

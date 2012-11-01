@@ -11,5 +11,5 @@ void main(void) {
   } else {
     body = texture2D(sampler, texture.xy).zw;
   }
-  gl_Position = vec4(body, 0.f, 1.f);
+  gl_Position = vec4(body * 0.25f, 0.f, 1.f);
 }
