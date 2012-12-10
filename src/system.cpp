@@ -26,7 +26,7 @@ GLvoid System::initialize() {
   GLuint currentSamplerUniform;
 
   // Initialize textured quad framebuffer object.
-  glGenFramebuffers(1, &quadfbo);
+  glGenFramebuffersEXT(1, &quadfbo);
 
   // Initialize textured quad index buffer object.
   glGenBuffers(1, &quadibo);
@@ -128,8 +128,8 @@ GLvoid System::update() {
   const GLuint next = (swap + 2) % 3;
 
   // Initialize framebuffer object, attach next texture.
-  glBindFramebuffer(GL_FRAMEBUFFER, quadfbo);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture[next], 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, quadfbo);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture[next], 0);
   glDrawBuffers(1, buffers);
 
   // Render new positions to framebuffer.
@@ -159,7 +159,7 @@ GLvoid System::update() {
   glUseProgram(0);
   glPopAttrib();
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
   swap++;
   swap %= 3;

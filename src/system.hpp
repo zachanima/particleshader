@@ -5,13 +5,10 @@
 #define PARTICLES (SQRT_PARTICLES * SQRT_PARTICLES)
 #define VERTICES (PARTICLES * 2)
 
-#define GL_GLEXT_PROTOTYPES
-
 #include <cmath>
 #include <cstdlib>
 
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <GL/glew.h>
 
 #include "lwcppgl/display.hpp"
 
