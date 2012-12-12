@@ -1,2 +1,4 @@
 *.swp
+bin/particleshader*
 bin/particleshader
+bin/*.dll
